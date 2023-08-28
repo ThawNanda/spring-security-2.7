@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import com.nexcode.security.security.UserPrincipal;
@@ -46,9 +45,9 @@ public class JwtServiceImpl implements JwtService {
 	}
 
 	@Override
-	public boolean isTokenValid(String jwt, UserDetails userDetails) {
-		final String username = extractUsername(jwt);
-		return (username.equals(userDetails.getUsername())) && !isTokenExpired(jwt);
+	public boolean isTokenValid(String jwt) {
+		// final String username = extractUsername(jwt);
+		return !isTokenExpired(jwt);
 	}
 
 	private boolean isTokenExpired(String jwt) {
@@ -75,7 +74,7 @@ public class JwtServiceImpl implements JwtService {
 	}
 
 	private String generateToken(Map<String, Object> expected, UserPrincipal user) {
-		return Jwts.builder().setClaims(expected).setSubject(user.getUsername())
+		return Jwts.builder().setId(Long.toString(user.getId())).setClaims(expected).setSubject(user.getUsername())
 				.setIssuedAt(new Date(System.currentTimeMillis()))
 				.setExpiration(new Date(System.currentTimeMillis() + 86400 * 1000))
 				.signWith(getSignInKey(), SignatureAlgorithm.HS256).compact();
